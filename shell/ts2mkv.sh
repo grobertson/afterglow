@@ -5,4 +5,4 @@
 find . -iname '*.ts' -exec /opt/bin/post-processing.sh "{}" \;
 
 
-find . -iname '*.ts' -exec echo "{}" \;
+find . -iname '*.ts' -exec echo "{}" >> /tmp/ts_files.txt \;

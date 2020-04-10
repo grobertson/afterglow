@@ -1,17 +1,44 @@
 #!/usr/bin/env python3
-
-import os
+import os, re
 import ffmpeg
 import argparse
 import logging
-
+import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument("infile")
 args = parser.parse_args()
-print(args.infile)
 
-probe = ffmpeg.probe(args.infile)
+infile = args.infile
+v_codec = 'libx264'
+a_codec = 'aac'
+outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + v_codec + '.mkv'
 
-print(probe)
+def transcode(infile):
+    print('Starting transcode of {}'.format(os.path.basename(infile)))
+    t = ffmpeg.input(infile)
+    t = t.output(outfile, acodec=a_codec, vcodec=v_codec, preset='veryfast', tune='psnr')
+    t.run()
+    print('Finishing transcode to {}'.format(os.path.basename(outfile)))
+    #print('Removing original file {}'.format(os.path.basename(infile)))
+    #os.unlink(infile)
 
+def probe(infile):
+    print("Probe requested for '{}'.".format(infile))
+    try:
+        p = ffmpeg.probe(infile)
+    except ffmpeg.Error:
+        print('ERROR: File {} does not exist or no permissions. Fatal.'.format(infile))
+        exit(255)
+    file = p['format']
+    streams = p['streams']
+    video = streams[0]
+    audio = streams[1]
+    print('File: {}'.format(os.path.basename(infile)))
+    print('Video stream: {}'.format(video['codec_long_name']))
+    print('Audio stream: Channels: {}\tBitrate: {}k\tSample Rate: {}'.format(audio['codec_long_name'], audio['channels'], str(int(audio['bit_rate']) / 1000), audio['sample_rate']))
+
+
+if __name__ == "__main__":
+    probe(infile)
+    transcode(infile)
