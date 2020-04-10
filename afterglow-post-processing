@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-import os, re
+import os
 import ffmpeg
 import argparse
 import logging
-import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument("infile")
@@ -11,17 +10,20 @@ args = parser.parse_args()
 
 infile = args.infile
 v_codec = 'libx264'
+v_rate = '800k'
 a_codec = 'aac'
-outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + v_codec + '.mkv'
+a_rate = '192k'
+
+outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + a_rate + '-' + v_codec + v_rate + '.mkv'
 
 def transcode(infile):
     print('Starting transcode of {}'.format(os.path.basename(infile)))
     t = ffmpeg.input(infile)
-    t = t.output(outfile, acodec=a_codec, vcodec=v_codec, preset='veryfast', tune='psnr')
+    t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:a': a_rate, 'b:v': v_rate})
     try:
         t.run()
     except ffmpeg.Error:
-        print("Something went wrong during transcode. Sorry.")
+        print("ERROR: Something went wrong during transcode. Sorry.")
         exit(255)
     
     print('Finishing transcode to {}'.format(os.path.basename(outfile)))
