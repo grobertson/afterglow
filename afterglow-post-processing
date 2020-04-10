@@ -18,10 +18,16 @@ def transcode(infile):
     print('Starting transcode of {}'.format(os.path.basename(infile)))
     t = ffmpeg.input(infile)
     t = t.output(outfile, acodec=a_codec, vcodec=v_codec, preset='veryfast', tune='psnr')
-    t.run()
+    try:
+        t.run()
+    except ffmpeg.Error:
+        print("Something went wrong during transcode. Sorry.")
+        exit(255)
+    
     print('Finishing transcode to {}'.format(os.path.basename(outfile)))
-    #print('Removing original file {}'.format(os.path.basename(infile)))
-    #os.unlink(infile)
+    print('Removing original file {}'.format(os.path.basename(infile)))
+    os.unlink(infile)
+    exit(0)
 
 def probe(infile):
     print("Probe requested for '{}'.".format(infile))
@@ -37,7 +43,6 @@ def probe(infile):
     print('File: {}'.format(os.path.basename(infile)))
     print('Video stream: {}'.format(video['codec_long_name']))
     print('Audio stream: Channels: {}\tBitrate: {}k\tSample Rate: {}'.format(audio['codec_long_name'], audio['channels'], str(int(audio['bit_rate']) / 1000), audio['sample_rate']))
-
 
 if __name__ == "__main__":
     probe(infile)
