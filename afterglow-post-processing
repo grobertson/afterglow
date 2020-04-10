@@ -14,7 +14,7 @@ v_rate = '800k'
 a_codec = 'aac'
 a_rate = '192k'
 
-outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + a_rate + '-' + v_codec + v_rate + '.mkv'
+outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + a_rate + '-' + v_codec + '-' + v_rate + '.mkv'
 
 def transcode(infile):
     print('Starting transcode of {}'.format(os.path.basename(infile)))
