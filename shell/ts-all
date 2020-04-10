@@ -1,0 +1,3 @@
+#/usr/bin/env bash
+
+find /Recording /media /media2 -iname '*.ts' -exec /opt/bin/afterglow-post-processing "{}";
