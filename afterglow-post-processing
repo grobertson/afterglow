@@ -20,17 +20,19 @@ outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + a_rate + '-' + v_codec + 
 def transcode(infile):
     print('Starting transcode of {}'.format(os.path.basename(infile)))
     t = ffmpeg.input(infile)
+    t = t.overwrite_output()
     t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:a': a_rate, 'b:v': v_rate})
     try:
-        t.run(quiet=True, overwrite_output=True)
+        out, _ = ( t.run(quiet=True) )
+
     except ffmpeg.Error:
         print("ERROR: Something went wrong during transcode. Sorry.")
         pprint(ffmpeg.Error)
         exit(255)
 
     print('Finishing transcode to {}'.format(os.path.basename(outfile)))
-    print('Removing original file {}'.format(os.path.basename(infile)))
-    os.unlink(infile)
+    #print('Removing original file {}'.format(os.path.basename(infile)))
+    #os.unlink(infile)
     exit(0)
 
 def probe(infile):
