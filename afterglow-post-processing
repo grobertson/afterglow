@@ -3,6 +3,7 @@ import os
 import ffmpeg
 import argparse
 import logging
+from pprint import pprint
 
 parser = argparse.ArgumentParser()
 parser.add_argument("infile")
@@ -21,11 +22,12 @@ def transcode(infile):
     t = ffmpeg.input(infile)
     t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:a': a_rate, 'b:v': v_rate})
     try:
-        t.run()
+        t.run(quiet=True, overwrite_output=True)
     except ffmpeg.Error:
         print("ERROR: Something went wrong during transcode. Sorry.")
+        pprint(ffmpeg.Error)
         exit(255)
-    
+
     print('Finishing transcode to {}'.format(os.path.basename(outfile)))
     print('Removing original file {}'.format(os.path.basename(infile)))
     os.unlink(infile)
