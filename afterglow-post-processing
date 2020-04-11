@@ -11,7 +11,7 @@ args = parser.parse_args()
 
 infile = args.infile
 v_codec = 'libx264'
-v_rate = '800k'
+v_rate = '1600k'
 a_codec = 'aac'
 a_rate = '192k'
 
