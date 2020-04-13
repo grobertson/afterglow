@@ -5,51 +5,51 @@ import argparse
 import logging
 from pprint import pprint
 
+logging.basicConfig(filename='/tmp/afterglow-pp.log',level=logging.DEBUG)
 parser = argparse.ArgumentParser()
 parser.add_argument("infile")
 args = parser.parse_args()
 
 infile = args.infile
-v_codec = 'libx264'
-v_rate = '1600k'
+v_codec = 'libx265'
+v_rate = '1400k'
 a_codec = 'aac'
 a_rate = '192k'
 
 outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + a_rate + '-' + v_codec + '-' + v_rate + '.mkv'
 
 def transcode(infile):
-    print('Starting transcode of {}'.format(os.path.basename(infile)))
-    t = ffmpeg.input(infile)
-    t = t.overwrite_output()
-    t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:a': a_rate, 'b:v': v_rate})
+    logging.info('Starting transcode of {}'.format(os.path.basename(infile)))
     try:
-        out, _ = ( t.run(quiet=True) )
+        t = ffmpeg.input(infile)
+        t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:a': a_rate, 'b:v': v_rate})
+        t = t.overwrite_output()
+        t = t.global_args('-nostdin')
+        out, err = t.run(quiet=True)
+    except ffmpeg.Error as e:
+            logging.critical(e.stderr)
+            sys.exit(1)
 
-    except ffmpeg.Error:
-        print("ERROR: Something went wrong during transcode. Sorry.")
-        pprint(ffmpeg.Error)
-        exit(255)
-
-    print('Finishing transcode to {}'.format(os.path.basename(outfile)))
-    #print('Removing original file {}'.format(os.path.basename(infile)))
+    logging.info('Finishing transcode to {}'.format(os.path.basename(outfile)))
+    logging.info('Removing original file {}'.format(os.path.basename(infile)))
     #os.unlink(infile)
-    exit(0)
 
 def probe(infile):
-    print("Probe requested for '{}'.".format(infile))
+    logging.info("Probe requested for '{}'.".format(infile))
     try:
         p = ffmpeg.probe(infile)
     except ffmpeg.Error:
-        print('ERROR: File {} does not exist or no permissions. Fatal.'.format(infile))
-        exit(255)
+        logging.critical('File {} does not exist or no permissions. Fatal.'.format(infile))
+        sys.exit(255)
     file = p['format']
     streams = p['streams']
     video = streams[0]
     audio = streams[1]
-    print('File: {}'.format(os.path.basename(infile)))
-    print('Video stream: {}'.format(video['codec_long_name']))
-    print('Audio stream: Channels: {}\tBitrate: {}k\tSample Rate: {}'.format(audio['codec_long_name'], audio['channels'], str(int(audio['bit_rate']) / 1000), audio['sample_rate']))
+    logging.info('File: {}'.format(os.path.basename(infile)))
+    logging.info('Video stream: {}'.format(video['codec_long_name']))
+    logging.info('Audio stream: {}'.format(audio['codec_long_name']))
 
 if __name__ == "__main__":
     probe(infile)
     transcode(infile)
+    probe(infile)
