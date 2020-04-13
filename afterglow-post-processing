@@ -26,6 +26,8 @@ def transcode(infile):
         t = t.overwrite_output()
         t = t.global_args('-nostdin')
         out, err = t.run(quiet=True)
+        logging.info('Transcode out: {}'.format(out))
+        logging.info('Transcode err: {}'.format(out))
     except ffmpeg.Error as e:
             logging.critical(e.stderr)
             sys.exit(1)
@@ -52,4 +54,4 @@ def probe(infile):
 if __name__ == "__main__":
     probe(infile)
     transcode(infile)
-    probe(infile)
+    probe(outfile)
