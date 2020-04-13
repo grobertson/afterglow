@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os
+import os, sys
 import ffmpeg
 import argparse
 import logging
@@ -32,7 +32,7 @@ def transcode(infile):
 
     logging.info('Finishing transcode to {}'.format(os.path.basename(outfile)))
     logging.info('Removing original file {}'.format(os.path.basename(infile)))
-    #os.unlink(infile)
+    os.unlink(infile)
 
 def probe(infile):
     logging.info("Probe requested for '{}'.".format(infile))
