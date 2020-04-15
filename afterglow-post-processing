@@ -5,16 +5,16 @@ import argparse
 import logging
 from pprint import pprint
 
-logging.basicConfig(filename='/tmp/afterglow-pp.log',level=logging.DEBUG)
+logging.basicConfig(filename='./afterglow-pp.log',level=logging.DEBUG)
 parser = argparse.ArgumentParser()
 parser.add_argument("infile")
 args = parser.parse_args()
 
 infile = args.infile
 v_codec = 'libx265'
-v_rate = '1400k'
+v_rate = '1600k'
 a_codec = 'aac'
-a_rate = '192k'
+a_rate = '256k'
 
 outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + a_rate + '-' + v_codec + '-' + v_rate + '.mkv'
 
@@ -24,17 +24,15 @@ def transcode(infile):
         t = ffmpeg.input(infile)
         t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:a': a_rate, 'b:v': v_rate})
         t = t.overwrite_output()
-        t = t.global_args('-nostdin')
+        t = t.global_args('-nostdin', '-report')
         out, err = t.run(quiet=True)
-        logging.info('Transcode out: {}'.format(out))
-        logging.info('Transcode err: {}'.format(out))
     except ffmpeg.Error as e:
             logging.critical(e.stderr)
             sys.exit(1)
 
     logging.info('Finishing transcode to {}'.format(os.path.basename(outfile)))
     logging.info('Removing original file {}'.format(os.path.basename(infile)))
-    os.unlink(infile)
+    # os.unlink(infile)
 
 def probe(infile):
     logging.info("Probe requested for '{}'.".format(infile))
