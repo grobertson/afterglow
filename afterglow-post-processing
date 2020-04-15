@@ -11,9 +11,9 @@ parser.add_argument("infile")
 args = parser.parse_args()
 
 infile = args.infile
-v_codec = 'libx265'
+v_codec = 'hevc_vaapi'
 v_rate = '1600k'
-a_codec = 'aac'
+a_codec = 'libopus'
 a_rate = '256k'
 
 outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + a_rate + '-' + v_codec + '-' + v_rate + '.mkv'
