@@ -2,30 +2,42 @@
 import os, sys
 import ffmpeg
 import argparse
+import subprocess
 import logging
 from pprint import pprint
 
-logging.basicConfig(filename='./afterglow-pp.log',level=logging.DEBUG)
+logging.basicConfig(filename='/tmp/afterglow-pp.log',level=logging.DEBUG)
 parser = argparse.ArgumentParser()
 parser.add_argument("infile")
 args = parser.parse_args()
 
 infile = args.infile
-v_codec = 'hevc_vaapi'
+v_codec = 'libx264'
 v_rate = '1600k'
-a_codec = 'libopus'
-a_rate = '256k'
+a_codec = 'copy'
 
-outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + a_rate + '-' + v_codec + '-' + v_rate + '.mkv'
+outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + v_codec + '-' + v_rate + '.mkv'
 
 def transcode(infile):
     logging.info('Starting transcode of {}'.format(os.path.basename(infile)))
     try:
         t = ffmpeg.input(infile)
-        t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:a': a_rate, 'b:v': v_rate})
+        t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:v': v_rate})
         t = t.overwrite_output()
-        t = t.global_args('-nostdin', '-report')
-        out, err = t.run(quiet=True)
+        t = t.global_args('-nostdin')
+        ff_cmd = t.compile()
+        ff_cmd[0] = '/usr/bin/ffmpeg'
+        logging.debug(ff_cmd)
+        proc = subprocess.Popen(ff_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, cwd='/tmp/', env={}, universal_newlines=True)
+        try:
+            outs, errs = proc.communicate()
+        except TimeoutExpired:
+            proc.kill()
+            outs, errs = proc.communicate()
+        logging.info(str(outs))
+        logging.debug(str(errs))
     except ffmpeg.Error as e:
             logging.critical(e.stderr)
             sys.exit(1)
@@ -44,12 +56,12 @@ def probe(infile):
     file = p['format']
     streams = p['streams']
     video = streams[0]
-    audio = streams[1]
+    #audio = streams[1]
     logging.info('File: {}'.format(os.path.basename(infile)))
     logging.info('Video stream: {}'.format(video['codec_long_name']))
     logging.info('Audio stream: {}'.format(audio['codec_long_name']))
 
 if __name__ == "__main__":
-    probe(infile)
+    #probe(infile)
     transcode(infile)
-    probe(outfile)
+    #probe(outfile)
