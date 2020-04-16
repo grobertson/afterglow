@@ -6,14 +6,14 @@ import subprocess
 import logging
 from pprint import pprint
 
-logging.basicConfig(filename='/tmp/afterglow-pp.log',level=logging.DEBUG)
+logging.basicConfig(filename='/tmp/afterglow-pp.log',level=logging.INFO)
 parser = argparse.ArgumentParser()
 parser.add_argument("infile")
 args = parser.parse_args()
 
 infile = args.infile
 v_codec = 'libx264'
-v_rate = '1600k'
+v_rate = '2100k'
 a_codec = 'copy'
 
 outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + v_codec + '-' + v_rate + '.mkv'
@@ -24,7 +24,7 @@ def transcode(infile):
         t = ffmpeg.input(infile)
         t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:v': v_rate})
         t = t.overwrite_output()
-        t = t.global_args('-nostdin')
+        t = t.global_args('-nostdin -report')
         ff_cmd = t.compile()
         ff_cmd[0] = '/usr/bin/ffmpeg'
         logging.debug(ff_cmd)
