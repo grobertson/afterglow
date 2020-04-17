@@ -1,3 +1,7 @@
 #/usr/bin/env bash
 
+# A simple utility script to scan all the files in a path looking for MPEG ts files to remux
+
+#Note: As is this will output a list of commands, one for each file found. 
+#       Remove "echo" to make this function directly on files.
 find "$1" -iname '*.ts' -exec echo /opt/bin/afterglow-post-processing '{}' \;
