@@ -1,17 +1,20 @@
 # Afterglow
+
 A video and audio post-processing script for Plex (and other) HDTV DVR generated files using the ffmpeg-python binding library.
+
 
 ## Quick Start
 
-If you're looking for something that is super simple, this [0.1 release of Afterglow](../) serves reasonably well. At the least, it's a better starting point for your own PPd script than many other options I surveyed. Reasonable familiarity with python is required. 
+If you're looking for something that is super simple, this [0.1a release of Afterglow](https://github.com/grobertson/afterglow/archive/first-alpha.zip) serves reasonably well. At the least, it's a better starting point for your own PPd script than many other options I surveyed. Reasonable familiarity with python is required. 
 
-# [Download Afterglow 0.1 HERE](#downloadlink)
+# [Download Afterglow 0.1a HERE](https://github.com/grobertson/afterglow/archive/first-alpha.zip)
 
 If you're looking for good batch post-processing with some interesting features *NOW*, check out [Pytranscoder](https://github.com/mlsmithjr/transcoder). 
 
 If you're looking for something that gracefully handles ridiculous volumes of encoding, can distribute its tasks across your available hardware, and can be managed from the cli or the web... Well, we'll see how long this Covid-19 thing lasts. 
 
-## Features in 0.1: 
+
+## Features in 0.1a: 
 
 - Very simple to use. No external configuration.
 
@@ -20,6 +23,8 @@ If you're looking for something that gracefully handles ridiculous volumes of en
 - Correctly detaches from stdin to prevent zombies when backgrounded.
 
 - Includes simple batch processing script; re-encode a backlog of files! (see shell/ts-all)
+
+- Needs testing
 
 
 ### Support and feature requests:
