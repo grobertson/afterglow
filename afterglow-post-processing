@@ -4,7 +4,13 @@ import ffmpeg
 import argparse
 import subprocess
 import logging
-from pprint import pprint
+
+# Note about ffmpeg and subprocess. 
+
+''' The ffmpeg-python binding library provides no way to specify a full path to ffmpeg.
+        For that reason, we're importing subprocess and doing much of what I originally
+        expected ffmpeg-python to do. TL;DR, ffmpeg-python is cute but not needed, and in
+        places it just adds needless obfuscation. TODO: 86 it. '''
 
 logging.basicConfig(filename='/tmp/afterglow-pp.log',level=logging.INFO)
 parser = argparse.ArgumentParser()
@@ -13,10 +19,11 @@ args = parser.parse_args()
 
 infile = args.infile
 v_codec = 'libx264'
-v_rate = '2100k'
+v_rate = '2M'
 a_codec = 'copy'
+keep_original = True # SET TO False if you want Afterglow to remove the original when done encoding
 
-outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + v_codec + '-' + v_rate + '.mkv'
+outfile = infile.rstrip('\.*$') + '.mkv'
 
 def transcode(infile):
     logging.info('Starting transcode of {}'.format(os.path.basename(infile)))
@@ -43,8 +50,11 @@ def transcode(infile):
             sys.exit(1)
 
     logging.info('Finishing transcode to {}'.format(os.path.basename(outfile)))
-    logging.info('Removing original file {}'.format(os.path.basename(infile)))
-    # os.unlink(infile)
+    if keep_original is False:
+        logging.info('Removing original file {}'.format(os.path.basename(infile)))
+        os.unlink(infile)
+    else:
+        logging.info('NOT removing original file {}'.format(os.path.basename(infile)))
 
 def probe(infile):
     logging.info("Probe requested for '{}'.".format(infile))
@@ -62,6 +72,6 @@ def probe(infile):
     logging.info('Audio stream: {}'.format(audio['codec_long_name']))
 
 if __name__ == "__main__":
-    #probe(infile)
+    #probe(infile)  -- Currently serves no real purpose, but something to look at.
     transcode(infile)
     #probe(outfile)
