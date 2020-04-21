@@ -1,4 +1,17 @@
 #/bin/bash
 
+# F. Grant Robertson, April 2020
+
+# When used in place of a Plex post processing script, this will dump a list of available codecs to /tmp/inspect.out and 
+#   leave the recorded stream as-is.
+
+# This can be useful if trying to work with the ffmpeg available by default within the post-processing environment.
+
+# Note, this is NOT the ffmpeg and linked libraries you see when running /usr/bin/ffmpeg in most cases, 
+#   even if you've asusmed the identity of the local plex user.
+
+# To avoid this issue and use your locally installed ffmpeg, be sure to call the full path to ffmpeg during
+#   post processing and wipe the shell environement when calling ffmpeg. 
+
 ffmpeg -codecs 2>&1 >> /tmp/inspect.out
 
