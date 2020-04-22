@@ -1,0 +1,40 @@
+{
+        "event": "media.play",
+        "user": true,
+        "owner": true,
+        "Account": {
+            "id": 1,
+            "thumb": "https://plex.tv/users/3cddc18087dc0306/avatar?c=1581743207",
+            "title": "cngplex"
+        },
+        "Server": {
+            "title": "rick",
+            "uuid": "a8dd732d01772e473dd423712fc9ff186b9ee5a2"
+        },
+        "Player": {
+            "local": true,
+            "publicAddress": "216.243.56.16",
+            "title": "AFTMM",
+            "uuid": "b228ff356676d33b-com-plexapp-android"
+        },
+        "Metadata": {
+            "librarySectionType": "movie",
+            "ratingKey": "14349",
+            "key": "/library/metadata/14349",
+            "guid": "com.plexapp.agents.none://aadda968221c2227c11e9c38a258cc24454b9f29?lang=xn",
+            "type": "movie",
+            "title": "rifftrax.reefer.madness.1936.dvdrip.xvid-fico",
+            "summary": "",
+            "viewOffset": 2410018,
+            "lastViewedAt": 1587463791,
+            "year": 2010,
+            "thumb": "/library/metadata/14349/thumb/1587153497",
+            "art": "/library/metadata/14349/art/1587153497",
+            "originallyAvailableAt": "2010-06-23",
+            "addedAt": 1277303558,
+            "updatedAt": 1587153497,
+            "createdAtAccuracy": "epoch",
+            "createdAtTZOffset": "-25200"
+        }
+
+}
