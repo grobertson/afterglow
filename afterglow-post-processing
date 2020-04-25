@@ -2,56 +2,86 @@
 import os, sys
 import ffmpeg
 import argparse
+import subprocess
 import logging
+from pyyaml import load
 from pprint import pprint
 
-logging.basicConfig(filename='/tmp/afterglow-pp.log',level=logging.DEBUG)
-parser = argparse.ArgumentParser()
-parser.add_argument("infile")
-args = parser.parse_args()
+class Afterglow(object):
 
-infile = args.infile
-v_codec = 'libx265'
-v_rate = '1400k'
-a_codec = 'aac'
-a_rate = '192k'
+    def __init__(self):
+        try:
+            self.conf = self.load_config()
+        except:
+            print('Unable to load configuration! Fatal.')
+            exit(1)
 
-outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + a_rate + '-' + v_codec + '-' + v_rate + '.mkv'
+    def load_config(self):
+        with open('/opt/bin/afterglow.yaml') as f:
+            return yaml.load(f, Loader=yaml.Loader)['ag']['defaults']
 
-def transcode(infile):
-    logging.info('Starting transcode of {}'.format(os.path.basename(infile)))
-    try:
-        t = ffmpeg.input(infile)
-        t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:a': a_rate, 'b:v': v_rate})
-        t = t.overwrite_output()
-        t = t.global_args('-nostdin')
-        out, err = t.run(quiet=True)
-        logging.info('Transcode out: {}'.format(out))
-        logging.info('Transcode err: {}'.format(out))
-    except ffmpeg.Error as e:
-            logging.critical(e.stderr)
-            sys.exit(1)
+    def transcode(self):
+        logging.info('Starting transcode of {}'.format(infile_name))
+        try:
+            t = ffmpeg.input(infile)
+            t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:v': v_rate})
+            t = t.overwrite_output()
+            t = t.global_args('-nostdin -report')
+            ff_cmd = t.compile()
+            ff_cmd[0] = '/usr/bin/ffmpeg'
+            logging.debug(ff_cmd)
+            proc = subprocess.Popen(ff_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, cwd='/tmp/', env={}, universal_newlines=True)
+            try:
+                outs, errs = proc.communicate()
+            except TimeoutExpired:
+                proc.kill()
+                outs, errs = proc.communicate()
+            logging.info(str(outs))
+            logging.debug(str(errs))
+        except ffmpeg.Error as e:
+                logging.critical(e.stderr)
+                sys.exit(1)
 
-    logging.info('Finishing transcode to {}'.format(os.path.basename(outfile)))
-    logging.info('Removing original file {}'.format(os.path.basename(infile)))
-    os.unlink(infile)
+        logging.info('Finishing transcode to {}'.format(os.path.basename(outfile)))
+        logging.info('Removing original file {}'.format(os.path.basename(infile)))
+        # os.unlink(infile)
 
-def probe(infile):
-    logging.info("Probe requested for '{}'.".format(infile))
-    try:
-        p = ffmpeg.probe(infile)
-    except ffmpeg.Error:
-        logging.critical('File {} does not exist or no permissions. Fatal.'.format(infile))
-        sys.exit(255)
-    file = p['format']
-    streams = p['streams']
-    video = streams[0]
-    audio = streams[1]
-    logging.info('File: {}'.format(os.path.basename(infile)))
-    logging.info('Video stream: {}'.format(video['codec_long_name']))
-    logging.info('Audio stream: {}'.format(audio['codec_long_name']))
+    def probe(infile):
+        logging.info("Probe requested for '{}'.".format(infile))
+        try:
+            p = ffmpeg.probe(infile)
+        except ffmpeg.Error:
+            logging.critical('File {} does not exist or no permissions. Fatal.'.format(infile))
+            sys.exit(255)
+        file = p['format']
+        streams = p['streams']
+        video = streams[0]
+        #audio = streams[1]
+        logging.info('File: {}'.format(os.path.basename(infile)))
+        logging.info('Video stream: {}'.format(video['codec_long_name']))
+        logging.info('Audio stream: {}'.format(audio['codec_long_name']))
+
+    logging.basicConfig(filename=conf['log_file'],level=conf['log_level'])
+
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("infile")
+    args = parser.parse_args()
+
+    v_codec = conf['v_codec']
+    v_rate = conf['v_bitrate']
+    a_codec = conf['a_codec']
+
+    infile = args.infile
+    infile_name = os.path.basename(infile)
+    outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + v_codec + '-' + v_rate + '.mkv'
+    outfile_name = os.path.basename(outfile)
+
 
 if __name__ == "__main__":
-    probe(infile)
+    
+    #probe(infile)
     transcode(infile)
-    probe(outfile)
+    #probe(outfile)
