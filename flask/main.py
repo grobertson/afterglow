@@ -1,9 +1,10 @@
 import os
-from app import create_app
+from flask.api import create_app
+from flask.config import Development as conf
 
+environment = os.getenv("AFTERGLOW_ENV", "development")
 
-app = create_app(os.getenv("production", "development"))
-
+app = create_app(environment)
 
 if __name__ == "__main__":
-    app.run(port=3001)
+    app.run(port=conf.PORT)
