@@ -1,2 +1,3 @@
 argparse
 ffmpeg-python
+pyyaml

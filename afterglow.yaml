@@ -1,0 +1,9 @@
+ag:
+    defaults:
+        log_level: DEBUG
+        log_file: '/tmp/afterglow-pp.log'
+        v_codec: libx264
+        v_bitrate: 2100k
+        a_codec: copy
+        a_bitrate: 256k
+        
