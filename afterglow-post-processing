@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
-import os, sys
-import ffmpeg
 import argparse
-import subprocess
 import logging
-from pyyaml import load
+import os
+import subprocess
+import sys
 from pprint import pprint
+
+import ffmpeg
+
+from yaml import load
+
 
 class Afterglow(object):
 
-    def __init__(self):
+    def __init__(self, infile):
+        self.infile = infile
         try:
             self.conf = self.load_config()
         except:
@@ -23,7 +28,7 @@ class Afterglow(object):
     def transcode(self):
         logging.info('Starting transcode of {}'.format(infile_name))
         try:
-            t = ffmpeg.input(infile)
+            t = ffmpeg.input(self.infile)
             t = t.output(outfile, acodec=a_codec, vcodec=v_codec,**{'b:v': v_rate})
             t = t.overwrite_output()
             t = t.global_args('-nostdin -report')
@@ -48,10 +53,12 @@ class Afterglow(object):
         logging.info('Removing original file {}'.format(os.path.basename(infile)))
         # os.unlink(infile)
 
-    def probe(infile):
+    def probe(self, infile):
         logging.info("Probe requested for '{}'.".format(infile))
         try:
             p = ffmpeg.probe(infile)
+            pprint(p)
+        
         except ffmpeg.Error:
             logging.critical('File {} does not exist or no permissions. Fatal.'.format(infile))
             sys.exit(255)
@@ -63,7 +70,7 @@ class Afterglow(object):
         logging.info('Video stream: {}'.format(video['codec_long_name']))
         logging.info('Audio stream: {}'.format(audio['codec_long_name']))
 
-    logging.basicConfig(filename=conf['log_file'],level=conf['log_level'])
+  #  logging.basicConfig(filename=conf['log_file'],level=conf['log_level'])
 
 
     parser = argparse.ArgumentParser()
@@ -83,5 +90,7 @@ class Afterglow(object):
 if __name__ == "__main__":
     
     #probe(infile)
-    transcode(infile)
+    ag = Afterglow(infile)
+
+    ag.transcode()
     #probe(outfile)
