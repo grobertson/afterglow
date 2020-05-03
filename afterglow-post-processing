@@ -8,8 +8,7 @@ from pprint import pprint
 
 import ffmpeg
 
-from yaml import load
-
+import yaml
 
 class Afterglow(object):
 
@@ -40,7 +39,7 @@ class Afterglow(object):
                 stderr=subprocess.PIPE, cwd='/tmp/', env={}, universal_newlines=True)
             try:
                 outs, errs = proc.communicate()
-            except TimeoutExpired:
+            except Exception:
                 proc.kill()
                 outs, errs = proc.communicate()
             logging.info(str(outs))
@@ -68,27 +67,30 @@ class Afterglow(object):
         #audio = streams[1]
         logging.info('File: {}'.format(os.path.basename(infile)))
         logging.info('Video stream: {}'.format(video['codec_long_name']))
-        logging.info('Audio stream: {}'.format(audio['codec_long_name']))
+#        logging.info('Audio stream: {}'.format(audio['codec_long_name']))
 
   #  logging.basicConfig(filename=conf['log_file'],level=conf['log_level'])
 
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("infile")
-    args = parser.parse_args()
 
     v_codec = conf['v_codec']
     v_rate = conf['v_bitrate']
     a_codec = conf['a_codec']
 
-    infile = args.infile
-    infile_name = os.path.basename(infile)
+
     outfile = infile.rstrip('.ts') + '-' + a_codec + '-' + v_codec + '-' + v_rate + '.mkv'
     outfile_name = os.path.basename(outfile)
 
 
 if __name__ == "__main__":
     
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("infile")
+    args = parser.parse_args()
+    infile = args.infile
+    infile_name = os.path.basename(infile)
+
     #probe(infile)
     ag = Afterglow(infile)
 
